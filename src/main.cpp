@@ -34,27 +34,96 @@ These rules must be applied in the correct order.
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
 // =====================
 // Enum for flight status
 // =====================
+enum flightStatus{
+    CANCELLED = 1, DEPARTED, DELAYED, BOARDING, ON_TIME
+};
 
 
 // =====================
 // Struct for flight data
 // =====================
+struct Flight{
+    string flightNumber;
+    string destination;
+    int scheduledDeparture;
+    int currentTime;
+    int delayMinutes;
+    bool isCancelled;
+    int status;
+};
 
 
 // =====================
 // Function prototypes
 // =====================
 // ** Please add the proper parameters **
-int militaryToMinutes();
-void updateFlightStatus();
-string statusToString();
-void displayFlight();
+int militaryToMinutes(int militaryTime){
+    int minutes;
+    int hours;
+    int remainder;
+    remainder = militaryTime % 100;
+    hours = (militaryTime - remainder)/100;
+    minutes = (hours * 60) + remainder;
+    return minutes;
+};
+
+
+void updateFlightStatus(Flight &flight){
+    if (flight.isCancelled){
+        flight.status = CANCELLED; 
+    }
+    else if (flight.currentTime >= flight.scheduledDeparture && flight.delayMinutes == 0){
+        flight.status = DEPARTED; 
+    }
+    else if (flight.delayMinutes > 0 && flight.currentTime <= flight.scheduledDeparture){
+        flight.status = DELAYED; 
+    }
+    else if (flight.scheduledDeparture - flight.currentTime <= 30){
+        flight.status = BOARDING; 
+    }
+    else{
+        flight.status = ON_TIME; 
+    }
+};
+
+string statusToString(int status){
+    string sStatus;
+    switch (status){
+        case 1:
+            sStatus = "Cancelled";
+            break;
+        case 2:
+            sStatus = "Departed";
+            break;
+        case 3:
+            sStatus = "Delayed";
+            break;
+        case 4:
+            sStatus = "Boarding";
+            break;
+        case 5:
+            sStatus = "On Time";
+            break;
+        default:
+            sStatus = "Switch didn't work";
+            break;
+    }
+    return sStatus;
+};
+
+string displayFlight(Flight flight){
+    stringstream sFlight;
+    string fStatus = statusToString (flight.status);
+    sFlight << "Flight to " << flight.destination << endl << fStatus << endl;
+    return sFlight.str();
+};
 
 // =====================
 // Main
@@ -107,23 +176,23 @@ int main() {
     flight5.status = ON_TIME;
 
     updateFlightStatus(flight1);
-    displayFlight(flight1);
+    cout << displayFlight(flight1);
     cout << endl;
 
     updateFlightStatus(flight2);
-    displayFlight(flight2);
+    cout << displayFlight(flight2);
     cout << endl;
 
     updateFlightStatus(flight3);
-    displayFlight(flight3);
+    cout << displayFlight(flight3);
     cout << endl;
 
     updateFlightStatus(flight4);
-    displayFlight(flight4);
+    cout << displayFlight(flight4);
     cout << endl;
 
     updateFlightStatus(flight5);
-    displayFlight(flight5);
+    cout << displayFlight(flight5);
 
     return 0;
 }
